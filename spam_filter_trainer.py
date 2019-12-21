@@ -1,8 +1,23 @@
 import pandas as pd
-
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+
+def print_metrics(y_true, preds, model_name=None):
+    
+    if model_name == None:
+        print('Accuracy score: ', format(accuracy_score(y_true, preds)))
+        print('Precision score: ', format(precision_score(y_true, preds)))
+        print('Recall score: ', format(recall_score(y_true, preds)))
+        print('F1 score: ', format(f1_score(y_true, preds)))
+        print('\n')
+
+    else:
+        print('Accuracy score for ' + model_name + ' :' , format(accuracy_score(y_true, preds)))
+        print('Precision score ' + model_name + ' :', format(precision_score(y_true, preds)))
+        print('Recall score ' + model_name + ' :', format(recall_score(y_true, preds)))
+        print('F1 score ' + model_name + ' :', format(f1_score(y_true, preds)))
+        print('\n')
 
 headers = ['label', 'sms_message']
 df = pd.read_csv ('spam.csv', names = headers)
@@ -14,7 +29,6 @@ y = count_vector.fit_transform(df['sms_message'])
 doc_array = y.toarray()
 
 fm = pd.DataFrame(doc_array, columns = count_vector.get_feature_names())
-fm
 
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(df['sms_message'], df['label'], random_state=1)
@@ -32,33 +46,15 @@ naive_bayes.fit(training_data, y_train)
 # Predict on the test data
 predictions = naive_bayes.predict(testing_data)
 
-# Score our model
-print ('Naive Bayes')
-print('Accuracy score: ', format(accuracy_score(y_test, predictions)))
-print('Precision score: ', format(precision_score(y_test, predictions)))
-print('Recall score: ', format(recall_score(y_test, predictions)))
-print('F1 score: ', format(f1_score(y_test, predictions)))
-
-
-
-from sklearn.ensemble import BaggingClassifier
 # Instantiate a BaggingClassifier with:
+from sklearn.ensemble import BaggingClassifier
+
 # 200 weak learners (n_estimators) and everything else as default values
 model_BC = BaggingClassifier(n_estimators=200)
 # Fit your BaggingClassifier to the training data
 model_BC.fit(training_data, y_train)
 # Predict using BaggingClassifier on the test data
 y_pred_BC = model_BC.predict(testing_data)
-# Score our model
-print ('Bagging:')
-print('Accuracy score: ', format(accuracy_score(y_test, predictions)))
-print('Precision score: ', format(precision_score(y_test, predictions)))
-print('Recall score: ', format(recall_score(y_test, predictions)))
-print('F1 score: ', format(f1_score(y_test, predictions)))
-
-
-# In[80]:
-
 
 from sklearn.ensemble import RandomForestClassifier
 # Instantiate a RandomForestClassifier with:
@@ -68,14 +64,6 @@ model_RF = RandomForestClassifier(n_estimators=200)
 model_RF.fit(training_data, y_train)
 # Predict using AdaBoostClassifier on the test data
 y_pred_RF = model_RF.predict(testing_data)
-print ('RandomForest:')
-print('Accuracy score: ', format(accuracy_score(y_test, predictions)))
-print('Precision score: ', format(precision_score(y_test, predictions)))
-print('Recall score: ', format(recall_score(y_test, predictions)))
-print('F1 score: ', format(f1_score(y_test, predictions)))
-
-
-# In[81]:
 
 
 from sklearn.ensemble import AdaBoostClassifier
@@ -86,11 +74,15 @@ model_AB = AdaBoostClassifier(n_estimators=200, learning_rate = 0.2)
 model_AB.fit(training_data, y_train)
 # Predict using AdaBoostClassifier on the test data
 y_pred_AB = model_AB.predict(testing_data)
-print ('RandomForest:')
-print('Accuracy score: ', format(accuracy_score(y_test, predictions)))
-print('Precision score: ', format(precision_score(y_test, predictions)))
-print('Recall score: ', format(recall_score(y_test, predictions)))
-print('F1 score: ', format(f1_score(y_test, predictions)))
 
+# Print Bagging scores
+print_metrics(y_test, y_pred_BC, 'bagging')
 
-# In[ ]:
+# Print Random Forest scores
+print_metrics(y_test, y_pred_RF, 'random forest')
+
+# Print AdaBoost scores
+print_metrics(y_test, y_pred_AB, 'adaboost')
+
+# Naive Bayes Classifier scores
+print_metrics(y_test, predictions, 'naive bayes')
